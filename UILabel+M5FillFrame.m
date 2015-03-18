@@ -2,7 +2,7 @@
 //  UILabel+M5FillFrame.m
 //  UILabel+M5FillFrame
 //
-//  Created by Mathew Huusko V on 3/2/15.
+//  Created by Mathew Huusko V.
 //  Copyright (c) 2015 Mathew Huusko V. All rights reserved.
 //
 
@@ -11,40 +11,20 @@
 #import "UIFont+M5MaxSize.h"
 #import <objc/runtime.h>
 
-NSString* const kM5FillFrameFontScale = @"M5FillFrameFontScale"; // 0 -> 1
-NSString* const kM5FillFrameHeightOnly = @"M5FillFrameHeightOnly"; // YES / NO
+#pragma mark - UILabel+M5FillFrame -
 
-NS_INLINE void M5SwizzleMethod(Class clazz, SEL original, SEL alternate) {
-    Method origMethod = class_getInstanceMethod(clazz, original);
-    Method newMethod = class_getInstanceMethod(clazz, alternate);
-    
-    if(class_addMethod(clazz, original, method_getImplementation(newMethod), method_getTypeEncoding(newMethod))) {
-        class_replaceMethod(clazz, alternate, method_getImplementation(origMethod), method_getTypeEncoding(origMethod));
-    } else {
-        method_exchangeImplementations(origMethod, newMethod);
-    }
-}
+#pragma mark Fields
+
+NSString* const kM5FillFrameFontScale = @"M5FillFrameFontScale";
+NSString* const kM5FillFrameHeightOnly = @"M5FillFrameHeightOnly";
+
+#pragma mark -
 
 @implementation UILabel (M5FillFrame)
 
-#pragma mark - UILabel (M5FillFrame) Private -
+#pragma mark - UILabel+M5FillFrame (Private) -
 
-+ (void)load {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        @synchronized(self.class) {
-            M5SwizzleMethod(self.class, @selector(drawTextInRect:), @selector(M5_drawTextInRect:));
-        }
-    });
-}
-
-- (void)M5_drawTextInRect:(CGRect)rect {
-    if (self.M5_fillFrameFontScale) {
-        self.font = self.M5_scaledMaximizedFont;
-    }
-    
-    [self M5_drawTextInRect:rect];
-}
+#pragma mark Methods
 
 - (UIFont *)M5_scaledMaximizedFont {
     UIFont *font = [UIFont M5_maxFontWithName:self.font.fontName minSize:8 boundsSize:(self.M5_fillFrameRect ? self.M5_fillFrameRect.CGRectValue : self.frame).size heightOnly:self.M5_fillFrameHeightOnly.boolValue string:self.text];
@@ -76,6 +56,10 @@ NS_INLINE void M5SwizzleMethod(Class clazz, SEL original, SEL alternate) {
     objc_setAssociatedObject(self, @selector(M5_fillFrameRect), rect, OBJC_ASSOCIATION_RETAIN);
 }
 
+#pragma mark - NSObject -
+
+#pragma mark Methods
+
 - (void)setValue:(id)value forKey:(NSString *)key {
     if ([key isEqualToString:kM5FillFrameFontScale] && [value isKindOfClass:NSNumber.class]) {
         [self M5_setFillFrameFontScale:value];
@@ -86,30 +70,43 @@ NS_INLINE void M5SwizzleMethod(Class clazz, SEL original, SEL alternate) {
     }
 }
 
++ (void)load {
+    @synchronized(self) {
+        SEL selector = @selector(drawTextInRect:);
+        
+        __block IMP oldImp = nil;
+        IMP newImp = imp_implementationWithBlock(^(id self, CGRect rect) {
+            if (((UILabel *)self).M5_fillFrameFontScale) {
+                ((UILabel *)self).font = ((UILabel *)self).M5_scaledMaximizedFont;
+            }
+            
+            if (oldImp) {
+                ((void(*)(id, SEL, CGRect))oldImp)(self, selector, rect);
+            }
+        });
+        
+        Method method = class_getInstanceMethod(self, selector);
+        if (method) {
+            oldImp = method_setImplementation(method, newImp);
+        } else {
+            const char *methodTypes = [NSString stringWithFormat:@"%s%s%s%s", @encode(void), @encode(id), @encode(SEL), @encode(CGRect)].UTF8String;
+            
+            class_addMethod(self, selector, newImp, methodTypes);
+        }
+    }
+}
+
+#pragma mark -
+
 #pragma mark -
 
 @end
 
 @implementation UIButton (M5FillFrame)
 
-#pragma mark - UIButton (M5FillFrame) Private -
+#pragma mark - NSObject -
 
-+ (void)load {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        @synchronized(self.class) {
-            M5SwizzleMethod(self.class, @selector(drawRect:), @selector(M5_drawRect:));
-        }
-    });
-}
-
-- (void)M5_drawRect:(CGRect)rect {
-    if (self.titleLabel.M5_fillFrameFontScale) {
-        [self.titleLabel M5_setFillFrameRect:[NSValue valueWithCGRect:rect]];
-    }
-    
-    [self M5_drawRect:rect];
-}
+#pragma mark Methods
 
 - (void)setValue:(id)value forKey:(NSString *)key {
     if ([key isEqualToString:kM5FillFrameFontScale] && [value isKindOfClass:NSNumber.class]) {
@@ -118,6 +115,33 @@ NS_INLINE void M5SwizzleMethod(Class clazz, SEL original, SEL alternate) {
         [self.titleLabel M5_setFillFrameHeightOnly:value];
     } else {
         [super setValue:value forKey:key];
+    }
+}
+
+
++ (void)load {
+    @synchronized(self) {
+        SEL selector = @selector(drawRect:);
+        
+        __block IMP oldImp = nil;
+        IMP newImp = imp_implementationWithBlock(^(id self, CGRect rect) {
+            if (((UIButton *)self).titleLabel.M5_fillFrameFontScale) {
+                [((UIButton *)self).titleLabel M5_setFillFrameRect:[NSValue valueWithCGRect:rect]];
+            }
+            
+            if (oldImp) {
+                ((void(*)(id, SEL, CGRect))oldImp)(self, selector, rect);
+            }
+        });
+        
+        Method method = class_getInstanceMethod(self, selector);
+        if (method) {
+            oldImp = method_setImplementation(method, newImp);
+        } else {
+            const char *methodTypes = [NSString stringWithFormat:@"%s%s%s%s", @encode(void), @encode(id), @encode(SEL), @encode(CGRect)].UTF8String;
+            
+            class_addMethod(self, selector, newImp, methodTypes);
+        }
     }
 }
 

@@ -2,7 +2,7 @@
 //  UIFont+M5MaxSize.m
 //  UILabel+M5FillFrame
 //
-//  Created by Mathew Huusko V on 3/2/15.
+//  Created by Mathew Huusko V.
 //  Copyright (c) 2015 Mathew Huusko V. All rights reserved.
 //
 
@@ -15,7 +15,9 @@ typedef enum {
 
 @implementation UIFont (M5MaxSize)
 
-#pragma mark - UIFont (M5MaxSize) -
+#pragma mark - UIFont+M5MaxSize -
+
+#pragma mark Methods
 
 + (UIFont *)M5_maxFontWithName:(NSString *)fontName minSize:(NSInteger)minSize boundsSize:(CGSize)boundsSize heightOnly:(BOOL)heightOnly string:(NSString *)string {
     UIFont *maxFont = nil;
@@ -41,7 +43,9 @@ typedef enum {
 
 #pragma mark -
 
-#pragma mark - UIFont (M5MaxSize) Private -
+#pragma mark - UIFont+M5MaxSize (Private) -
+
+#pragma mark Methods
 
 + (UIFont *)M5_maxFontWithName:(NSString *)fontName minSize:(NSInteger)minSize boundsSize:(CGFloat)boundsSize testString:(NSString *)testString dimension:(DimensionType)dimension {
 	UIFont *tempFont = nil;
