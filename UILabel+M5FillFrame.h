@@ -14,10 +14,10 @@
 
 #pragma mark Fields
 
-//Runtime attribute (IB or setValue:forKey:) for percent of frame to scale to. 0 –> 1. Default 1.
+/** Runtime attribute (IB or setValue:forKey:) for percent of frame to scale to. 0 –> 1. Default 1. */
 extern NSString* const kM5FillFrameFontScale; 
 
-//Runtime attribute (IB or setValue:forKey:) to scale text only to height of frame. YES / NO. Default NO.
+/** Runtime attribute (IB or setValue:forKey:) to scale text only to height of frame. YES / NO. Default NO. */
 extern NSString* const kM5FillFrameHeightOnly;
 
 #pragma mark -
