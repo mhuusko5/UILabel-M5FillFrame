@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'UILabel+M5FillFrame'
-  s.version = '1.0.2'
+  s.version = '1.1.0'
   s.license = { :type => 'MIT', :file => 'LICENSE' }
   s.summary = 'Set M5FillFrameFontScale and M5FillFrameHeightOnly runtime attributes on UILabels or UIButtons to have their text fill/fit to their frame.'
   s.homepage = 'https://github.com/mhuusko5/UILabel-M5FillFrame'
